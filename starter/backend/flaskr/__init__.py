@@ -8,6 +8,16 @@ from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
 
+
+def paginate_questions(request, selection):
+
+  page = request.args.get('page', 1, type=int)
+  start = (page - 1) * QUESTIONS_PER_PAGE
+  end = start + QUESTIONS_PER_PAGE
+
+  questions = [questions.format() for question in selection]
+  current_questions = questions[start: end]
+
 def create_app(test_config=None):
   # create and configure the app
   app = Flask(__name__)
@@ -16,6 +26,11 @@ def create_app(test_config=None):
   '''
   @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
   '''
+  @app.after_request
+  def after_request(response):
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization, true')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE, OPTIONS')
+    return response
 
   '''
   @TODO: Use the after_request decorator to set Access-Control-Allow
@@ -27,6 +42,20 @@ def create_app(test_config=None):
   for all available categories.
   '''
 
+  @app.route('/categories')
+  def retrieve_categories():
+    #Create a new list
+    #Map the elements from Category.format with the values provided by Category.query.all
+    #Return the jsonify
+
+    categories = list(map(Category.format, Category.query.all()))
+
+    result = {
+      'success': True,
+      'categories': categories
+    }
+
+    return jsonify(result)
 
   '''
   @TODO: 
