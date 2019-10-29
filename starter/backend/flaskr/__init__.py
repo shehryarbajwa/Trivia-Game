@@ -15,8 +15,10 @@ def paginate_questions(request, selection):
   start = (page - 1) * QUESTIONS_PER_PAGE
   end = start + QUESTIONS_PER_PAGE
 
-  questions = [questions.format() for question in selection]
+  questions = [question.format() for question in selection]
   current_questions = questions[start: end]
+
+  return current_questions
 
 def create_app(test_config=None):
   # create and configure the app
@@ -70,6 +72,24 @@ def create_app(test_config=None):
   Clicking on the page numbers should update the questions. 
   '''
 
+  @app.route('/questions')
+  def retrieve_questions():
+
+    selection = Question.query.order_by(Question.id).all()
+    current_questions = paginate_questions(request, selection)
+    categories = list(map(Category.format, Category.query.all()))
+
+    if len(current_questions) == 0:
+      abort(404)
+
+    return jsonify({
+      'success': True,
+      'questions': current_questions,
+      'current_category': None,
+      'categories': categories
+    })
+
+
   '''
   @TODO: 
   Create an endpoint to DELETE question using a question ID. 
@@ -78,6 +98,17 @@ def create_app(test_config=None):
   This removal will persist in the database and when you refresh the page. 
   '''
 
+  @app.route("/questions/<int:question_id>", methods=['DELETE'])
+  def delete_question(question_id):
+    question_query = Question.query.get(question_id)
+
+    if question_query:
+      Question.delete(question_query)
+      return jsonify({
+        'success': True
+      })
+    else:
+      abort(404)
   '''
   @TODO: 
   Create an endpoint to POST a new question, 
