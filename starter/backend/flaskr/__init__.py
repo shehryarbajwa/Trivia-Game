@@ -1,12 +1,12 @@
 import os
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request, abort, jsonify, json
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import random
 
 from models import setup_db, Question, Category
 
-QUESTIONS_PER_PAGE = 10
+QUESTIONS_PER_PAGE = 3
 
 
 def paginate_questions(request, selection):
@@ -120,6 +120,31 @@ def create_app(test_config=None):
   of the questions list in the "List" tab.  
   '''
 
+
+  @app.route('/questions', methods=["POST"])
+  def add_question():
+    if request.data:
+
+      body = request.get_json()
+
+      new_question = body.get('question', None)
+      new_answer = body.get('answer', None)
+      new_category = body.get('category', None)
+      new_difficulty = body.get('difficulty', None)
+
+      if new_question is not None and new_answer is not None and new_category is not None and new_difficulty is not None:
+        new_question = Question(question=new_question, answer=new_answer, category=new_category, difficulty=new_difficulty)
+        Question.insert(new_question)
+
+        return jsonify({
+          'success': True
+        })
+      
+      abort(400)
+    abort(422)
+
+
+
   '''
   @TODO: 
   Create a POST endpoint to get questions based on a search term. 
@@ -130,6 +155,27 @@ def create_app(test_config=None):
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
+
+  @app.route('/searchQuestions', methods=['POST'])
+  def search_questions():
+      if request.data:
+          body = request.get_json()
+          new_search_term = body.get('searchTerm', None)
+          if new_search_term is not None:
+              selection = Question.query.filter(Question.question.ilike('%' + new_search_term + '%'))
+              current_search_questions = paginate_questions(request, selection)
+              questions = list(map(Question.format, selection))
+              
+              if len(questions) > 0:
+                  result = {
+                      'success': True,
+                      'questions': current_search_questions,
+                      'total_questions': len(Question.query.all()),
+                      'current_category': None,
+                      }
+                  return jsonify(result)
+          abort(404)
+      abort(422)
 
   '''
   @TODO: 
