@@ -6,7 +6,8 @@ import random
 
 from models import setup_db, Question, Category
 
-QUESTIONS_PER_PAGE = 3
+QUESTIONS_PER_PAGE = 10
+CATEGORIES_PER_PAGE = 10
 
 
 def paginate_questions(request, selection):
@@ -19,6 +20,18 @@ def paginate_questions(request, selection):
   current_questions = questions[start: end]
 
   return current_questions
+
+def paginate_category(request, selection):
+
+  page = request.args.get('page', 1, type=int)
+  start = (page - 1) * CATEGORIES_PER_PAGE
+  end = start + CATEGORIES_PER_PAGE
+
+  categories = [category.format() for category in selection]
+  current_category = categories[start:end]
+  
+  return current_category
+
 
 def create_app(test_config=None):
   # create and configure the app
@@ -167,13 +180,12 @@ def create_app(test_config=None):
               questions = list(map(Question.format, selection))
               
               if len(questions) > 0:
-                  result = {
-                      'success': True,
-                      'questions': current_search_questions,
-                      'total_questions': len(Question.query.all()),
-                      'current_category': None,
-                      }
-                  return jsonify(result)
+                  return jsonify({
+                  'success': True,
+                  'questions': current_search_questions,
+                  'total_questions': len(Question.query.all()),
+                  'current_category': None,
+                  })
           abort(404)
       abort(422)
 
@@ -186,6 +198,23 @@ def create_app(test_config=None):
   category to be shown. 
   '''
 
+  @app.route('/categories/<int:category_id>/questions', methods=['GET'])
+  def get_questions_with_category(category_id):
+    #Request data is required when we post something
+      category_query = Category.query.get(category_id)
+      
+      question_query = Question.query.filter_by(category=str(category_id)).all()
+      current_questions = paginate_questions(request, question_query)
+
+      questions = list(map(Question.format, question_query))
+
+      if len(questions) > 0:
+        return jsonify({
+          'success': True,
+          'questions': current_questions,
+          'category': Category.format(category_query),
+          'total_questions': len(Question.query.all())
+      })
 
   '''
   @TODO: 
