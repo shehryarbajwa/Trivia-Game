@@ -21,16 +21,6 @@ def paginate_questions(request, selection):
 
   return current_questions
 
-def paginate_category(request, selection):
-
-  page = request.args.get('page', 1, type=int)
-  start = (page - 1) * CATEGORIES_PER_PAGE
-  end = start + CATEGORIES_PER_PAGE
-
-  categories = [category.format() for category in selection]
-  current_category = categories[start:end]
-  
-  return current_category
 
 
 def create_app(test_config=None):
@@ -215,7 +205,12 @@ def create_app(test_config=None):
           'category': Category.format(category_query),
           'total_questions': len(Question.query.all())
       })
-
+      else:
+        return jsonify({
+          "success": False,
+          "message": "Category doesn't exist"
+        })
+      abort(422)
   '''
   @TODO: 
   Create a POST endpoint to get questions to play the quiz. 
@@ -228,11 +223,69 @@ def create_app(test_config=None):
   and shown whether they were correct or not. 
   '''
 
+  @app.route('/quizzes', methods=['POST'])
+  def play_quizzes():
+    if request.data:
+      body = request.get_json()
+      new_quiz_category = body.get('quiz_category', None)
+      new_id = body.get(new_quiz_category['id'], None)
+      new_previous_questions = body.get('previous_questions', None)
+
+      questions_query = Question.query.filter_by(category=new_id).filter(Question.id.notin_(new_previous_questions)).all()
+      length_of_available_question = len(questions_query)
+
+      if length_of_available_question > 0:
+        return jsonify({
+          'success': True,
+          'question': Question.format(questions_query[random.randrange(0, length_of_available_question)])
+        })
+      else:
+        return jsonify({
+          'success': True,
+          'question': None
+        })
+      abort(404)
+    abort(400)
   '''
   @TODO: 
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
+
+  @app.errorhandler(400)
+  def not_found(error):
+    error_data = {
+      "success": False,
+      "error": 400,
+      "message": "Bad Request"
+    }
+    return jsonify(error_data)
+
+  @app.errorhandler(404)
+  def not_found(error):
+    error_data = {
+      "success": False,
+      "error": 404,
+      "message": "Resource not found"
+    }
+    return jsonify(error_data)
+  
+  @app.errorhandler(422)
+  def unprocessable(error):
+    error_data = {
+      "success": False,
+      "error": 422,
+      "message": "Unprocessable"
+    }
+    return jsonify(error_data)
+  @app.errorhandler(405)
+  def method_not_allowed(error):
+    error_data = {
+      "success": False,
+      "error": 405,
+      "message": "The method is not allowed for the requested URL"
+    }
+    return jsonify(error_data)
   
   return app
 
