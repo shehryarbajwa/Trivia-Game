@@ -140,7 +140,8 @@ def create_app(test_config=None):
         Question.insert(new_question)
 
         return jsonify({
-          'success': True
+          'success': True,
+          'questions': len(Question.query.all())
         })
       
       abort(400)
@@ -208,7 +209,7 @@ def create_app(test_config=None):
       else:
         return jsonify({
           "success": False,
-          "message": "Category doesn't exist"
+          "message": "Category does not exist"
         })
       abort(422)
   '''
@@ -228,10 +229,10 @@ def create_app(test_config=None):
     if request.data:
       body = request.get_json()
       new_quiz_category = body.get('quiz_category', None)
-      new_id = body.get(new_quiz_category['id'], None)
+      new_type = body.get(new_quiz_category['type'], None)
       new_previous_questions = body.get('previous_questions', None)
 
-      questions_query = Question.query.filter_by(category=new_id).filter(Question.id.notin_(new_previous_questions)).all()
+      questions_query = Question.query.filter_by(category=new_type).filter(Question.id.notin_(new_previous_questions)).all()
       length_of_available_question = len(questions_query)
 
       if length_of_available_question > 0:
