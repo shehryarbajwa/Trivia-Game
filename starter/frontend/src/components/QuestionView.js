@@ -1,18 +1,19 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 import '../stylesheets/App.css';
 import Question from './Question';
 import Search from './Search';
 import $ from 'jquery';
 
-class QuestionView extends Component {
+class QuestionView extends React.Component {
   constructor(){
     super();
     this.state = {
+      searchQuery: '',
       questions: [],
       page: 1,
       totalQuestions: 0,
-      categories: {},
+      categories: [],
       currentCategory: null,
     }
   }
@@ -22,26 +23,31 @@ class QuestionView extends Component {
   }
 
   getQuestions = () => {
-    $.ajax({
-      url: `/questions?page=${this.state.page}`, //TODO: update request URL
-      type: "GET",
-      success: (result) => {
+    fetch(`/questions?page=${this.state.page}`)
+    .then(res => res.json())
+    .then(
+      (result) => {
         this.setState({
           questions: result.questions,
           totalQuestions: result.total_questions,
           categories: result.categories,
-          currentCategory: result.current_category })
-        return;
+          currentCategory: result.current_category
+        })
       },
-      error: (error) => {
+      (error) => {
         alert('Unable to load questions. Please try your request again')
-        return;
       }
-    })
+      )
   }
 
   selectPage(num) {
-    this.setState({page: num}, () => this.getQuestions());
+    if (this.state.currentCategory) {
+      this.getByCategory(this.state.currentCategory.id, num)
+    } else if (this.state.searchQuery) {
+      this.submitSearch(this.state.searchQuery, num)
+    } else {
+      this.setState({page: num}, () => this.getQuestions());
+    }
   }
 
   createPagination(){
@@ -55,30 +61,32 @@ class QuestionView extends Component {
           onClick={() => {this.selectPage(i)}}>{i}
         </span>)
     }
+    console.log(pageNumbers)
     return pageNumbers;
   }
 
-  getByCategory= (id) => {
-    $.ajax({
-      url: `/categories/${id}/questions`, //TODO: update request URL
-      type: "GET",
-      success: (result) => {
+  getByCategory = (id, page = 1) => {
+    fetch(`categories/${id}/questions?page=${page}`)
+    .then(res => res.json())
+    .then(
+      (result) => {
         this.setState({
+          page: page,
           questions: result.questions,
           totalQuestions: result.total_questions,
-          currentCategory: result.current_category })
+          currentCategory: result.category
+        })
         return;
       },
-      error: (error) => {
+      (error)=> {
         alert('Unable to load questions. Please try your request again')
-        return;
       }
-    })
+    )
   }
 
-  submitSearch = (searchTerm) => {
+  submitSearch = (searchTerm, page = 1) => {
     $.ajax({
-      url: `/questions`, //TODO: update request URL
+      url: `/searchQuestions?page=${page}`, //TODO: update request URL
       type: "POST",
       dataType: 'json',
       contentType: 'application/json',
@@ -89,9 +97,12 @@ class QuestionView extends Component {
       crossDomain: true,
       success: (result) => {
         this.setState({
+          searchQuery: searchTerm,
+          page: page,
           questions: result.questions,
           totalQuestions: result.total_questions,
-          currentCategory: result.current_category })
+          currentCategory: result.current_category
+        });
         return;
       },
       error: (error) => {
@@ -125,10 +136,10 @@ class QuestionView extends Component {
         <div className="categories-list">
           <h2 onClick={() => {this.getQuestions()}}>Categories</h2>
           <ul>
-            {Object.keys(this.state.categories).map((id, ) => (
-              <li key={id} onClick={() => {this.getByCategory(id)}}>
-                {this.state.categories[id]}
-                <img className="category" src={`${this.state.categories[id]}.svg`}/>
+            {this.state.categories.map((category) => (
+              <li key={category.id} onClick={() => {this.getByCategory(category.id)}}>
+                {category.type}
+                <img className="category" src={`${category.type.toLowerCase()}.svg`}/>
               </li>
             ))}
           </ul>
@@ -141,7 +152,7 @@ class QuestionView extends Component {
               key={q.id}
               question={q.question}
               answer={q.answer}
-              category={this.state.categories[q.category]} 
+              category={this.state.categories[q.category - 1]}
               difficulty={q.difficulty}
               questionAction={this.questionAction(q.id)}
             />
