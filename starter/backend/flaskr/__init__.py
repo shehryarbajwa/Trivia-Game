@@ -205,7 +205,9 @@ def create_app(test_config=None):
           'success': True,
           'questions': current_questions,
           'category': Category.format(category_query),
-          'total_questions': len(Question.query.all())
+          'total_questions': len(Question.query.all()),
+          
+          
       })
       else:
         return jsonify({
