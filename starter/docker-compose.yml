@@ -4,6 +4,18 @@ services:
         image: 'postgres:latest'
         environment:
            - POSTGRES_PASSWORD=postgres_password
+        ports: 
+            - '5432:5432'
+    nginx:
+        depends_on:
+            - api
+            - client
+        restart: always
+        build: 
+            dockerfile: Dockerfile
+            context: ./nginx
+        ports:
+            - '3050:80'
     api:
         depends_on: 
             - postgres
@@ -15,14 +27,11 @@ services:
             - DATABASE_TYPE=postgres
             - DATABASE_NAME=trivia
             - DATABASE_PASSWORD=postgres_password
-            - DATABASE_PORT=localhost:5432
     client:
         stdin_open: true
         build:
             dockerfile: Dockerfile
             context: ./frontend
-        volumes:
-            - /app/node_modules
-            - ./client:/app
+        
 
             

@@ -23,7 +23,7 @@ class QuestionView extends React.Component {
   }
 
   getQuestions = () => {
-    fetch(`/questions?page=${this.state.page}`)
+    fetch(`/api/questions?page=${this.state.page}`)
     .then(res => res.json())
     .then(
       (result) => {
@@ -66,7 +66,7 @@ class QuestionView extends React.Component {
   }
 
   getByCategory = (id, page = 1) => {
-    fetch(`categories/${id}/questions?page=${page}`)
+    fetch(`/api/categories/${id}/questions?page=${page}`)
     .then(res => res.json())
     .then(
       (result) => {

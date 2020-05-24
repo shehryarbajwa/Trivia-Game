@@ -2,7 +2,6 @@
   "name": "trivia-app",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://127.0.0.1:5000/",
   "dependencies": {
     "corsproxy": "^1.5.0",
     "jquery": "^3.4.1",
