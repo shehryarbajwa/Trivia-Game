@@ -3,7 +3,9 @@ services:
     postgres:
         image: 'postgres:latest'
         environment:
-           - POSTGRES_PASSWORD=postgres_password
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres_password
+            - POSTGRES_DB=trivia
         ports: 
             - '5432:5432'
     nginx:
@@ -23,10 +25,9 @@ services:
             dockerfile: Dockerfile
             context: ./backend
         environment: 
-            - DATABASE_USER=shehryarbajwa
-            - DATABASE_TYPE=postgres
-            - DATABASE_NAME=trivia
-            - DATABASE_PASSWORD=postgres_password
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres_password
+            - POSTGRES_DB=trivia
     client:
         stdin_open: true
         build:
