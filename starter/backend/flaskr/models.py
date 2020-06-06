@@ -4,12 +4,12 @@ from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 import json
 
-database_name = os.getenv('DATABASE_NAME')
-database_user = os.getenv('DATABASE_USER')
-database_port = os.getenv('DATABASE_PORT')
-database_type = os.getenv('DATABASE_TYPE')
-database_path = "{}://{}@{}/{}".format(database_type, database_user, database_port, database_name)
 
+
+database_path = 'postgresql+psycopg2://%s:%s@%s/%s' % (
+    # ARGS.dbuser, ARGS.dbpass, ARGS.dbhost, ARGS.dbname
+    os.environ['DBUSER'], os.environ['DBPASS'], os.environ['DBHOST'], os.environ['DBNAME']
+)
 db = SQLAlchemy()
 
 
