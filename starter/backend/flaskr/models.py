@@ -3,13 +3,17 @@ from sqlalchemy import Column, String, Integer, create_engine
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 import json
+import sys
+from jinja2 import Environment, FileSystemLoader
 
+user=os.environ.get('POSTGRES_USER')
+password=os.environ.get('POSTGRES_PASSWORD')
+host=os.environ.get('POSTGRES_HOST')
+database=os.environ.get('POSTGRES_DB')
+port=os.environ.get('POSTGRES_PORT')
 
+database_path = f'postgresql://{user}:{password}@{host}:{port}/{database}'
 
-database_path = 'postgresql+psycopg2://%s:%s@%s/%s' % (
-    # ARGS.dbuser, ARGS.dbpass, ARGS.dbhost, ARGS.dbname
-    os.environ['DBUSER'], os.environ['DBPASS'], os.environ['DBHOST'], os.environ['DBNAME']
-)
 db = SQLAlchemy()
 
 
@@ -19,7 +23,6 @@ def setup_db(app, database_path=database_path):
     db.app = app
     db.init_app(app)
     db.create_all()
-
 
 class Question(db.Model):  
   __tablename__ = 'questions'
