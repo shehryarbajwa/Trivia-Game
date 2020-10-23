@@ -43,7 +43,7 @@ The frontend app was built using create-react-app. In order to run the app in de
 
 Open http://localhost:3000 to view it in the browser. The page will reload if you make edits.
 
-npm start
+## npm start
 Running the Server
 From within the backend directory first ensure you are working using your created virtual environment.
 
@@ -78,7 +78,8 @@ The API will return three types of errors:
 400 – bad request
 404 – resource not found
 422 – unprocessable
-Endpoints
+
+## Endpoints
 GET /categories
 General: Returns a list categories.
 
