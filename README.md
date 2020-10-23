@@ -21,49 +21,6 @@ Use docker-compose up --build to create the intial build
 ## Full Stack Trivia API Project
 This project is a game where users can test their knowledge answering trivia questions. The task for the project was to create an API and test suite for implementing the following functionality:
 
-Display questions - both all questions and by category. Questions should show the question, category and difficulty rating by default and can show/hide the answer.
-Delete questions.
-Add questions and require that they include question and answer text.
-Search for questions based on a text query string.
-Play the quiz game, randomizing either all questions or within a specific category.
-Getting Started
-Installing Dependencies
-Developers using this project should already have Python3, pip, node, and npm installed.
-
-## Frontend Dependencies
-This project uses NPM to manage software dependencies. NPM Relies on the package.json file located in the frontend directory of this repository. After cloning, open your terminal and run:
-
-## npm install
-Backend Dependencies
-Once you have your virtual environment setup and running, install dependencies by naviging to the /backend directory and running:
-
-<br> pip install -r requirements.txt
-Running the Frontend in Dev Mode
-The frontend app was built using create-react-app. In order to run the app in development mode use npm start. You can change the script in the package.json file.
-
-Open http://localhost:3000 to view it in the browser. The page will reload if you make edits.
-
-## npm start
-Running the Server
-From within the backend directory first ensure you are working using your created virtual environment.
-
-To run the server, execute:
-
-export FLASK_APP=flaskr
-export FLASK_ENV=development
-flask run
-Testing
-To run the tests, run
-
-dropdb trivia_test
-createdb trivia_test
-psql trivia_test < trivia.psql
-python test_flaskr.py
-Omit the dropdb command the first time you run tests.
-
-## Full Stack Trivia API Project
-This project is a game where users can test their knowledge answering trivia questions. The task for the project was to create an API and test suite for implementing the following functionality:
-
 1) Display questions - both all questions and by category. Questions should show the question, category and difficulty rating by default and can show/hide the answer. 
 2) Delete questions.
 3) Add questions and require that they include question and answer text.
